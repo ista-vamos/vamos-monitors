@@ -8,7 +8,13 @@ set(CMAKE_C_EXTENSIONS OFF)
 
 find_package(vamos-buffers REQUIRED)
 
+if(NOT CMAKE_BUILD_TYPE)
+	message(STATUS "Build type not set. Setting buffer's build type.")
+	set(CMAKE_BUILD_TYPE ${vamos-buffers_BUILD_TYPE} CACHE STRING "" FORCE)
+endif()
+
 if (vamos-buffers_OPTION_ENABLE_IPO)
+	message(STATUS "Enabling IPO")
         set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
 endif()
 
