@@ -20,14 +20,14 @@
 //#define CHECK_IDS
 #define CHECK_IDS_ABORT
 
-static inline void dump_args(shm_stream *stream, shm_event_generic *ev,
+static inline void dump_args(vms_stream *stream, vms_event_generic *ev,
                              const char *signature) {
     unsigned char *p = ev->args;
     for (const char *o = signature; *o; ++o) {
         if (o != signature)
             printf(", ");
         if (*o == 'S' || *o == 'L' || *o == 'M') {
-            const char *str = shm_stream_get_str(stream, (*(uint64_t *)p));
+            const char *str = vms_stream_get_str(stream, (*(uint64_t *)p));
             const size_t len = strlen(str);
             printf("S[%lu, %lu]('%.*s%s)", (*(uint64_t *)p) >> 32,
                    (*(uint64_t *)p) & 0xffffffff, len > 6 ? 6 : (int)len, str,
@@ -100,7 +100,7 @@ int main(int argc, char *argv[]) {
         return -1;
     }
 
-    shm_event *ev = NULL;
+    vms_event *ev = NULL;
     shmn = shamon_create(NULL, NULL);
     assert(shmn);
 
@@ -108,20 +108,20 @@ int main(int argc, char *argv[]) {
 
 #ifdef DUMP_STATS
     size_t total_events_num =
-        shm_get_last_special_kind() + 1; /* ids up to 'dropped' are reserved */
+        vms_get_last_special_kind() + 1; /* ids up to 'dropped' are reserved */
 #endif
     for (int i = 1; i < argc; ++i) {
         fprintf(stderr, "Connecting stream '%s' ...\n", argv[i]);
-        shm_stream *stream = create_stream(argc, argv, i, NULL, NULL);
+        vms_stream *stream = create_stream(argc, argv, i, NULL, NULL);
         assert(stream && "Creating stream failed");
-        assert(shm_stream_id(stream) == (size_t)i);
+        assert(vms_stream_id(stream) == (size_t)i);
         shamon_add_stream(shmn, stream,
                           /* buffer capacity = */ 4 * 4096);
-        shm_stream_register_all_events(stream);
-        shm_stream_dump_events(stream);
+        vms_stream_register_all_events(stream);
+        vms_stream_dump_events(stream);
 #ifdef DUMP_STATS
         size_t events_num;
-        shm_stream_get_avail_events(stream, &events_num);
+        vms_stream_get_avail_events(stream, &events_num);
         total_events_num += events_num;
 #endif
     }
@@ -136,10 +136,10 @@ int main(int argc, char *argv[]) {
     memset(dropped_sum_count, 0, argc * sizeof(uint64_t));
 #endif
 
-    shm_kind kind;
+    vms_kind kind;
     size_t n = 0, drp = 0, drpn = 0;
     size_t id;
-    shm_stream *stream;
+    vms_stream *stream;
 
 #ifdef CHECK_IDS
     size_t stream_id;
@@ -158,12 +158,12 @@ int main(int argc, char *argv[]) {
         while ((ev = shamon_get_next_ev(shmn, &stream))) {
             ++n;
 
-            int ind = 5 * shm_stream_id(stream);
-            id = shm_event_id(ev);
-            kind = shm_event_kind(ev);
+            int ind = 5 * vms_stream_id(stream);
+            id = vms_event_id(ev);
+            kind = vms_event_kind(ev);
 
-            if (shm_event_is_hole(ev)) {
-                printf("%*s%s: ", ind, "", shm_stream_get_name(stream));
+            if (vms_event_is_hole(ev)) {
+                printf("%*s%s: ", ind, "", vms_stream_get_name(stream));
                 printf(
                     "\033[0;31mhole\033[0m(\033[0;34mid: %lu, kind: "
                     "%lu\033[0m, ...)\n",
@@ -173,7 +173,7 @@ int main(int argc, char *argv[]) {
             }
 
 #ifdef CHECK_IDS
-            stream_id = shm_stream_id(stream);
+            stream_id = vms_stream_id(stream);
 #endif
 #ifdef DUMP_STATS
             assert(kind < total_events_num && "OOB access");
@@ -183,9 +183,9 @@ int main(int argc, char *argv[]) {
 #endif
 #endif
 
-            rec = shm_stream_get_event_record(stream, kind);
+            rec = vms_stream_get_event_record(stream, kind);
             rec = rec ? rec : &unknown_rec;
-            printf("%*s%s: ", ind, "", shm_stream_get_name(stream));
+            printf("%*s%s: ", ind, "", vms_stream_get_name(stream));
             printf("\033[0;35m%s\033[0m(\033[0;34mid: %lu, kind: %lu\033[0m",
                    rec->name, id, kind);
 
@@ -200,23 +200,23 @@ int main(int argc, char *argv[]) {
             }
 #endif
 
-            if (shm_event_is_hole(ev)) {
+            if (vms_event_is_hole(ev)) {
                 printf("%*shole\n", ind, "");
                 /*
-                printf("%*s'dropped(%lu)'\n", ind, "", ((shm_event_dropped
-                *)ev)->n); drpn += ((shm_event_dropped *)ev)->n;
+                printf("%*s'dropped(%lu)'\n", ind, "", ((vms_event_dropped
+                *)ev)->n); drpn += ((vms_event_dropped *)ev)->n;
                 */
 #ifdef DUMP_STATS
 #ifdef CHECK_IDS
                 assert(stream_id < (size_t)argc && "OOB access");
-                dropped_sum_count[stream_id] += ((shm_event_dropped *)ev)->n;
+                dropped_sum_count[stream_id] += ((vms_event_dropped *)ev)->n;
                 ++dropped_count[stream_id];
 #endif
 #endif
 #ifdef CHECK_IDS
 #error "Not implemented"
                 /*
-                next_id[stream_id] += ((shm_event_dropped *)ev)->n;
+                next_id[stream_id] += ((vms_event_dropped *)ev)->n;
                 */
 #endif
                 ++drp;
@@ -228,7 +228,7 @@ int main(int argc, char *argv[]) {
 #endif
             if (*rec->signature) {
                 printf(", ");
-                dump_args(stream, (shm_event_generic *)ev,
+                dump_args(stream, (vms_event_generic *)ev,
                           (const char *)rec->signature);
             }
             printf(")\n");
@@ -262,27 +262,27 @@ int main(int argc, char *argv[]) {
 #ifdef CHECK_IDS
     size_t totally_came = 0;
     size_t evs_num;
-    shm_stream **streams =
+    vms_stream **streams =
 #endif
         shamon_get_streams(shmn, &streams_num);
-    shm_vector *buffers = shamon_get_buffers(shmn);
+    vms_vector *buffers = shamon_get_buffers(shmn);
     for (size_t i = 0; i < streams_num; ++i) {
 #ifdef CHECK_IDS
-        shm_stream *stream = streams[i];
-        stream_id = shm_stream_id(stream);
+        vms_stream *stream = streams[i];
+        stream_id = vms_stream_id(stream);
         assert(stream_id < (size_t)argc && "OOB access");
 
-        printf("-- Stream '%s':\n", shm_stream_get_name(stream));
+        printf("-- Stream '%s':\n", vms_stream_get_name(stream));
         printf("  Event 'dropped': %lu (sum of arguments: %lu)\n",
                dropped_count[stream_id], dropped_sum_count[stream_id]);
         totally_came += dropped_count[stream_id];
 
         struct event_record *evs =
-            shm_stream_get_avail_events(stream, &evs_num);
+            vms_stream_get_avail_events(stream, &evs_num);
         for (size_t n = 0; n < evs_num; ++n) {
             kind = evs[n].kind;
             assert(kind < total_events_num && "OOB access");
-            assert(strcmp(shm_event_kind_name(kind), evs[n].name) == 0 &&
+            assert(strcmp(vms_event_kind_name(kind), evs[n].name) == 0 &&
                    "Inconsistent names");
             printf("  Event '%s': %lu\n", evs[n].name,
                    kinds_count[kind][stream_id]);
@@ -290,9 +290,9 @@ int main(int argc, char *argv[]) {
         }
 #endif
 
-        shm_arbiter_buffer *buff =
-            (shm_arbiter_buffer *)shm_vector_at(buffers, i);
-        shm_arbiter_buffer_dump_stats(buff);
+        vms_arbiter_buffer *buff =
+            (vms_arbiter_buffer *)vms_vector_at(buffers, i);
+        vms_arbiter_buffer_dump_stats(buff);
     }
 #ifdef CHECK_IDS
     assert(totally_came == n);
