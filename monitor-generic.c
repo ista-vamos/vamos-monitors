@@ -148,8 +148,8 @@ int main(int argc, char *argv[]) {
 #endif
     size_t spinned = 0;
     size_t old_n;
-    struct event_record *rec;
-    struct event_record unknown_rec = {
+    struct vms_event_record *rec;
+    struct vms_event_record unknown_rec = {
         .size = 0, .name = "unknown", .signature = "", .kind = 0};
 
     while (__run && shamon_is_ready(shmn)) {
@@ -277,7 +277,7 @@ int main(int argc, char *argv[]) {
                dropped_count[stream_id], dropped_sum_count[stream_id]);
         totally_came += dropped_count[stream_id];
 
-        struct event_record *evs =
+        struct vms_event_record *evs =
             vms_stream_get_avail_events(stream, &evs_num);
         for (size_t n = 0; n < evs_num; ++n) {
             kind = evs[n].kind;

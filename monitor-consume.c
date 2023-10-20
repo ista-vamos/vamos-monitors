@@ -29,7 +29,7 @@ static int buffer_manager_thrd(void *data) {
     const size_t ev_size = vms_stream_event_size(stream);
     void *ev, *out;
     while (1) {
-        ev = stream_fetch(stream, buffer);
+        ev = vms_stream_fetch(stream, buffer);
         if (!ev) {
             break;
         }

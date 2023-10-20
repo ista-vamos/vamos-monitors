@@ -72,7 +72,7 @@ int main(int argc, char *argv[]) {
     // size_t id, next_id = 1;
     size_t n = 0, drp = 0;  //, drpn = 0;
     vms_stream *stream;
-    struct event_record *rec;
+    struct vms_event_record *rec;
     while (shamon_is_ready(shmn)) {
         while ((ev = shamon_get_next_ev(shmn, &stream))) {
             ++n;

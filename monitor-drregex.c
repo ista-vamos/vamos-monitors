@@ -72,8 +72,8 @@ int main(int argc, char *argv[]) {
     // size_t id, next_id = 1;
     size_t n = 0, drp = 0;  //, drpn = 0;
     vms_stream *stream;
-    struct event_record *rec;
-    struct event_record unknown_rec = {
+    struct vms_event_record *rec;
+    struct vms_event_record unknown_rec = {
         .size = 0, .name = "unknown", .signature = "", .kind = 0};
 
     while (shamon_is_ready(shmn)) {
