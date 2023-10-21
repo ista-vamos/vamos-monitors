@@ -47,7 +47,7 @@ static inline void dump_args(shm_stream_funs *ss, shm_event_funcall *ev) {
 
 shm_stream *create_stream(int argc, char *argv[], int arg_i,
                           const char *expected_stream_name,
-                          struct source_control **control);
+                          struct vms_source_control **control);
 
 int main(int argc, char *argv[]) {
     if (argc != 2) {
@@ -58,7 +58,7 @@ int main(int argc, char *argv[]) {
     shm_event *ev = NULL;
     shamon *shmn = shamon_create(NULL, NULL);
     assert(shmn);
-    struct source_control *control;
+    struct vms_source_control *control;
     shm_stream *fstream = create_stream(argc, argv, 1, "funs-stream", &control);
     assert(fstream && "Creating stream failed");
     shamon_add_stream(shmn, fstream,
