@@ -4,6 +4,7 @@
 #include <signal.h>
 #include <stdio.h>
 #include <string.h>
+#include <ctype.h>
 #include <time.h>
 #include <unistd.h>
 
@@ -46,7 +47,10 @@ static inline void dump_args(vms_stream *stream, vms_event_generic *ev,
         } else {
             switch (size) {
                 case 1:
-                    printf("%c", *((char *)p));
+		    if (!isprint(*((char *)p)))
+                    	printf("''(%d)", (int)(*((char *)p)));
+		    else
+                    	printf("'%c'", *((char *)p));
                     break;
                 case 4:
                     printf("%d", *((int *)p));
