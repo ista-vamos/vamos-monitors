@@ -119,8 +119,6 @@ int main(int argc, char *argv[]) {
         vms_stream *stream = create_stream(argc, argv, i, NULL, NULL);
         assert(stream && "Creating stream failed");
         assert(vms_stream_id(stream) == (size_t)i);
-        shamon_add_stream(shmn, stream,
-                          /* buffer capacity = */ 4 * 4096);
         vms_stream_register_all_events(stream);
         vms_stream_dump_events(stream);
 #ifdef DUMP_STATS
@@ -128,6 +126,8 @@ int main(int argc, char *argv[]) {
         vms_stream_get_avail_events(stream, &events_num);
         total_events_num += events_num;
 #endif
+        shamon_add_stream(shmn, stream,
+                          /* buffer capacity = */ 4 * 4096);
     }
 
 #ifdef DUMP_STATS
