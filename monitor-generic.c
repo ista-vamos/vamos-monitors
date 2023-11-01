@@ -48,15 +48,15 @@ static inline void dump_args(vms_stream *stream, vms_event_generic *ev,
             switch (size) {
                 case 1:
 		    if (!isprint(*((char *)p)))
-                    	printf("''(%d)", (int)(*((char *)p)));
+                    	printf("''(%d)", (unsigned int)(*((char *)p)));
 		    else
-                    	printf("'%c'", *((char *)p));
+                    	printf("'%u'", *((unsigned char *)p));
                     break;
                 case 4:
-                    printf("%d", *((int *)p));
+                    printf("%u", *((unsigned int *)p));
                     break;
                 case 8:
-                    printf("%ld", *((long int *)p));
+                    printf("%lu", *((unsigned long int *)p));
                     break;
                 default:
                     printf("?");
