@@ -30,15 +30,17 @@ get_filename_component(vamos-buffers_LIBRARIES_DIRS_core ${vamos-buffers_vamos-b
 get_filename_component(vamos-buffers_LIBRARIES_DIRS_shmbuf ${vamos-buffers_vamos-buffers-shmbuf} DIRECTORY)
 get_filename_component(vamos-buffers_LIBRARIES_DIRS_streams ${vamos-buffers_vamos-buffers-streams} DIRECTORY)
 
-add_executable(monitor-generic monitor-generic.c utils.c)
-target_link_libraries(monitor-generic PRIVATE vamos-buffers-shamon vamos-buffers-monitor pthread)
+add_library(vamos-monitors-utils STATIC utils.c)
 
-add_executable(monitor-regex monitor-regex.c utils.c)
-target_link_libraries(monitor-regex PRIVATE vamos-buffers-shamon vamos-buffers-monitor pthread)
+add_executable(monitor-generic monitor-generic.c)
+target_link_libraries(monitor-generic PRIVATE vamos-buffers-shamon vamos-buffers-monitor vamos-monitors-utils pthread)
 
-add_executable(monitor-drregex monitor-drregex.c utils.c)
-target_link_libraries(monitor-drregex PRIVATE vamos-buffers-shamon vamos-buffers-monitor pthread)
+add_executable(monitor-regex monitor-regex.c)
+target_link_libraries(monitor-regex PRIVATE vamos-buffers-shamon vamos-buffers-monitor vamos-monitors-utils pthread)
 
-add_executable(monitor-consume monitor-consume.c utils.c)
-target_link_libraries(monitor-consume PRIVATE vamos-buffers-shamon vamos-buffers-monitor pthread)
+add_executable(monitor-drregex monitor-drregex.c)
+target_link_libraries(monitor-drregex PRIVATE vamos-buffers-shamon vamos-buffers-monitor vamos-monitors-utils pthread)
+
+add_executable(monitor-consume monitor-consume.c)
+target_link_libraries(monitor-consume PRIVATE vamos-buffers-shamon vamos-buffers-monitor vamos-monitors-utils pthread)
 
